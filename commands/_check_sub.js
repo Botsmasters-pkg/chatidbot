@@ -1,12 +1,12 @@
 /*CMD
   command: /check_sub
-  help: Verify channel subscription status (Pending requests are accepted as verified!)
+  help: Verify channel subscription status (Sequential Multi-Channel Check)
   need_reply: false
   auto_retry_time: 
   folder: 
   answer: 
   keyboard: 
-  aliases: check_sub, 🔄 Verify Membership
+  aliases: check_sub, 🟢 VERIFY JOIN, Verify Membership
   group: 
 CMD*/
 
@@ -21,12 +21,11 @@ for (var i = 0; i < forceChannels.length; i++) {
 
 if (activeChannels.length === 0) {
   User.setProperty("force_sub_verified", true, "boolean");
-  Bot.sendMessage("✅ <b>Verified! Access granted.</b>", { parse_mode: "HTML" });
+  Bot.sendMessage("✅ <b>Verification successful! Welcome. 🎉</b>", { parse_mode: "HTML" });
   Bot.runCommand("/start");
   return;
 }
 
-// Start checking at index 0
 User.setProperty("check_sub_index", 0, "integer");
 
 function checkNextChannel(idx) {
@@ -50,7 +49,6 @@ function checkNextChannel(idx) {
     }
   }
 
-  // Otherwise check via Api.getChatMember
   var targetChatId = String(ch.channel_id || "").trim();
   Api.getChatMember({
     chat_id: targetChatId,

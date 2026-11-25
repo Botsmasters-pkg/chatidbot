@@ -17,7 +17,7 @@ var channels = Bot.getProperty("force_channels") || [];
 
 var text = "🔐 <b>FORCE SUBSCRIBE MANAGEMENT</b>\n" +
            "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-           "Total Channels Configured: <b>" + channels.length + "</b>\n\n";
+           "Total Active Channels: <b>" + channels.length + "</b>\n\n";
 
 if (channels.length === 0) {
   text += "<i>No channels added yet. Force subscribe is currently inactive.</i>\n";
@@ -25,7 +25,7 @@ if (channels.length === 0) {
   for (var i = 0; i < channels.length; i++) {
     var ch = channels[i];
     var status = ch.enabled !== false ? "🟢 Enabled" : "🔴 Disabled";
-    var typeBadge = ch.type === "request" ? "📩 Join-Request" : (ch.type === "private" ? "🔒 Private" : "📢 Public");
+    var typeBadge = ch.type === "request" ? "📩 Request" : (ch.type === "private" ? "🔒 Private" : "🌐 Public");
     text += (i + 1) + ". <b>" + ch.title + "</b> (" + status + ")\n" +
             "   Type: <code>" + typeBadge + "</code> | ID: <code>" + (ch.channel_id || "N/A") + "</code>\n" +
             "   Link: " + (ch.invite_link || "N/A") + "\n\n";
@@ -34,11 +34,11 @@ if (channels.length === 0) {
 
 var buttons = [
   [
-    { text: "➕ Add Public Channel", callback_data: "/admin_add_ch_public" },
-    { text: "➕ Add Private Channel", callback_data: "/admin_add_ch_private" }
+    { text: "🌐 Public Channel", callback_data: "/admin_add_ch_public" },
+    { text: "🔒 Private Channel", callback_data: "/admin_add_ch_private" }
   ],
   [
-    { text: "📩 Add Join-Request Channel", callback_data: "/admin_add_ch_request" },
+    { text: "📩 Request Channel", callback_data: "/admin_add_ch_request" },
     { text: "🗑️ Remove Channel", callback_data: "/admin_remove_channel" }
   ],
   [

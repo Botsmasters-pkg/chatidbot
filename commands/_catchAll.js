@@ -165,7 +165,7 @@ var adminStep = User.getProperty("admin_step");
 if (String(userId) === ADMIN_ID && adminStep) {
   Bot.run({
     command: "/handle_admin_input",
-    options: { message: message }
+    options: { text: message }
   });
   return;
 }

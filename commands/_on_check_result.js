@@ -31,7 +31,7 @@ if (typeof options === "object" && options !== null) {
 
 var isMember = (status === "creator" || status === "administrator" || status === "member");
 
-// Agar Join-Request channel hai aur request pending me gayi hai, toh bhi VERIFIED mana jayega!
+// Agar Join-Request channel hai aur request pending me chali gayi hai, toh bhi VERIFIED mana jayega!
 if (!isMember && currentCh && currentCh.type === "request") {
   if (User.getProperty("fsub_requested_" + currentCh.channel_id)) {
     isMember = true;
@@ -65,7 +65,18 @@ if (isMember) {
     return;
   }
 } else {
-  var chTitle = currentCh ? (currentCh.title || "the channel") : "all channels";
-  Bot.sendMessage("❌ <b>Aapne abhi tak " + chTitle + " join ya request nahi kiya hai!</b>\n\nKripya pehle link par click karke channel me request bhejein aur phir <b>Verify Membership</b> par click karein.", { parse_mode: "HTML" });
-  Bot.runCommand("/start");
+  // Show specific channel that was not joined with join button + [ 🟢 VERIFY JOIN ]
+  var chTitle = currentCh ? (currentCh.title || "Channel") : "Channel";
+  var chLink = currentCh ? currentCh.invite_link : "https://t.me";
+  var btnText = (currentCh && currentCh.type === "request") ? "📩 Request to Join Channel" : "📢 JOIN CHANNEL";
+
+  var buttons = [
+    [{ text: btnText, url: chLink }],
+    [{ text: "🟢 VERIFY JOIN", callback_data: "/check_sub" }]
+  ];
+
+  Bot.sendMessage("❌ <b>Aapne abhi tak " + chTitle + " join / request nahi kiya hai!</b>\n\nKripya pehle link par click karke channel join karein aur phir <b>[ 🟢 VERIFY JOIN ]</b> dabayein:", {
+    parse_mode: "HTML",
+    reply_markup: { inline_keyboard: buttons }
+  });
 }

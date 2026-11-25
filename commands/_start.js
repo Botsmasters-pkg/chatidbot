@@ -20,6 +20,7 @@ function escapeHtml(text) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
+
 function getMainKeyboard() {
   return {
     keyboard: [
@@ -164,13 +165,14 @@ if (!isOwner && activeChannels.length > 0 && !isVerified) {
   for (var j = 0; j < activeChannels.length; j++) {
     var ch = activeChannels[j];
     var link = ch.invite_link || "https://t.me/" + String(ch.channel_id).replace("@", "");
-    buttons.push([{ text: "📢 Join " + (ch.title || "Channel"), url: link }]);
+    var btnText = ch.type === "request" ? "📩 Request to Join Channel" : "📢 Join Channel";
+    buttons.push([{ text: btnText, url: link }]);
   }
-  buttons.push([{ text: "🔄 Verify Membership", callback_data: "/check_sub" }]);
+  buttons.push([{ text: "🟢 VERIFY JOIN", callback_data: "/check_sub" }]);
 
-  var fsubText = "⛔ <b>Access Restricted!</b>\n\n" +
-                 "Aapko bot use karne ke liye hamare official channels join karne honge.\n" +
-                 "Neeche diye gaye channels join karein aur <b>Verify Membership</b> par click karein:";
+  var fsubText = "⚠️ <b>To start click the button and join channel 👇</b>\n\n" +
+                 "Aapko bot use karne ke liye channel join karna zaroori hai.\n" +
+                 "Join / Request karne ke baad <b>[ 🟢 VERIFY JOIN ]</b> par click karein:";
 
   Api.sendMessage({
     chat_id: (chat && chat.chatid) ? chat.chatid : userId,
