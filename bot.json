@@ -1,0 +1,216 @@
+{
+  "bb_sync_version": "1.0",
+  "name": "ChatIDBot",
+  "admin_id": "8710308658",
+  "commands": [
+    {
+      "command": "/41",
+      "help": "Clone and install bot to user Bots.Business email",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "41, /clone, clone",
+      "code": "if (!user) return;\n\nvar ADMIN_ID = 8710308658;\n\n// ===== OFFICIAL CHANNEL =====\nvar CHANNEL = Bot.getProperty(\"official_channel\") || \"\";\n\nfunction escapeHtml(str) {\n  if (!str) return \"\";\n  return str.toString()\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\");\n}\n\n// Get email from options, params, or message\nvar email = (typeof options !== \"undefined\" && options && options.email) ? options.email : \n            (typeof params === \"string\" && params ? params.trim().toLowerCase() : \"\");\n\nif (!email && typeof message === \"string\" && message) {\n  var mTxt = message.trim();\n  if (mTxt.indexOf(\"/41\") === 0 || mTxt.indexOf(\"41\") === 0) {\n    email = mTxt.replace(/^\\/?41\\s*/i, \"\").trim().toLowerCase();\n  } else if ((mTxt.indexOf(\"@\") !== -1 && mTxt.indexOf(\".\") !== -1) || (mTxt.includes && mTxt.includes(\"@\") && mTxt.includes(\".\"))) {\n    email = mTxt.toLowerCase();\n  }\n}\n\n// ===== EMAIL VALIDATION =====\nvar hasEmailFormat = email && ((email.indexOf(\"@\") !== -1 && email.indexOf(\".\") !== -1) || (email.includes && email.includes(\"@\") && email.includes(\".\")));\n\nif (!hasEmailFormat) {\n  Bot.setProperty(\"waiting_clone_email_\" + user.telegramid, true, \"boolean\");\n  Bot.sendMessage(\n    '<tg-emoji emoji-id=\"5416117059207572332\">❌</tg-emoji> ' +\n    '<b>Invalid Email Address!</b>\\n\\n' +\n\n    '<tg-emoji emoji-id=\"5416081784641168838\">📧</tg-emoji> ' +\n    '<b>Example:</b> <code>/41 google@gmail.com</code>\\n\\n' +\n    '👉 <i>Or simply send your Bots.Business email address now:</i>',\n    {\n      parse_mode: \"HTML\"\n    }\n  );\n  return;\n}\n\n// Clear waiting state\nBot.setProperty(\"waiting_clone_email_\" + user.telegramid, false, \"boolean\");\n\n// ===== INSTALL BOT =====\ntry {\n  BBAdmin.installBot({\n    bot_id: bot.id,\n    email: email\n  });\n} catch (err) {}\n\n// User details\nvar rawName = user.first_name ? user.first_name : (user.username ? \"@\" + user.username : \"User\");\nvar userName = escapeHtml(rawName);\nvar userHandle = user.username ? (\"@\" + escapeHtml(user.username)) : \"No username\";\nvar uDirectUrl = user.username ? (\"https://t.me/\" + user.username) : (\"tg://user?id=\" + user.telegramid);\nvar now = new Date();\nvar dateStr = now.toISOString().replace(\"T\", \" \").slice(0, 19);\n\n// ===== SUCCESS MESSAGE =====\nBot.sendMessage(\n  '<tg-emoji emoji-id=\"5375338737028841420\">✅</tg-emoji> ' +\n  '<b>Bot Successfully Sent!</b>\\n\\n' +\n\n  '<tg-emoji emoji-id=\"5276032951342088188\">📩</tg-emoji> ' +\n  '<b>Email:</b> <code>' + escapeHtml(email) + '</code>\\n\\n' +\n\n  '<tg-emoji emoji-id=\"5416081784641168838\">📢</tg-emoji> ' +\n  '<b>Official Channel:</b> ' + CHANNEL + '\\n\\n' +\n\n  '<tg-emoji emoji-id=\"5460795800101594035\">🙏</tg-emoji> ' +\n  'Please join our official channel for updates &amp; support.\\n\\n' +\n\n  '🎁 <b>ले जा गरीब ' + userName + '! 🚀</b>',\n  {\n    parse_mode: \"HTML\"\n  }\n);\n\n// ===== NOTIFY ADMIN =====\nvar adminNotice = \"🤖 <b>NEW BOT CLONE CLAIMED!</b>\\n\" +\n                  \"━━━━━━━━━━━━━━━━━━━━━━\\n\\n\" +\n                  \"👤 <b>Claimed By:</b> <a href=\\\"\" + uDirectUrl + \"\\\">\" + userName + \"</a> (\" + userHandle + \")\\n\" +\n                  \"🆔 <b>Chat ID:</b> <code>\" + user.telegramid + \"</code>\\n\" +\n                  \"📧 <b>Bots.Business Email:</b> <code>\" + escapeHtml(email) + \"</code>\\n\" +\n                  \"⏰ <b>Claim Time:</b> <code>\" + dateStr + \"</code>\\n\" +\n                  \"━━━━━━━━━━━━━━━━━━━━━━\";\n\nApi.sendMessage({\n  chat_id: ADMIN_ID,\n  text: adminNotice,\n  parse_mode: \"HTML\",\n  reply_markup: {\n    inline_keyboard: [[\n      { text: \"✉️ Direct Message User\", url: uDirectUrl, style: \"primary\" }\n    ]]\n  }\n});"
+    },
+    {
+      "command": "/admin",
+      "help": "Open the Master Admin Control Dashboard",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_panel, /menu_admin_panel, menu_admin_panel, 👑 Admin Panel, Admin Panel",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) {\n  Bot.sendMessage(\"⛔ <b>Access Denied:</b> You are not authorized to view the Admin Panel.\");\n  return;\n}\n\nUser.setProperty(\"admin_step\", null);\n\nvar totalUsers = Bot.getProperty(\"total_users_count\") || 0;\nvar usersList = Bot.getProperty(\"users_list\") || [];\nif (usersList.length > totalUsers) {\n  totalUsers = usersList.length;\n}\nvar channels = Bot.getProperty(\"force_channels\") || [];\n\nvar text = \"⚡ <b>TOXIC CHAT ID BOT — MASTER ADMIN PANEL</b>\\n\" +\n           \"━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\" +\n           \"👑 <b>Admin:</b> <code>\" + user.telegramid + \"</code>\\n\" +\n           \"👥 <b>Total Registered Users:</b> <code>\" + totalUsers + \"</code>\\n\" +\n           \"📢 <b>Force Channels:</b> <code>\" + channels.length + \"</code>\\n\" +\n           \"🛡️ <b>System:</b> Operational\\n\\n\" +\n           \"<i>Select a control module below:</i>\";\n\nvar buttons = [\n  [\n    { text: \"📊 Bot Status\", callback_data: \"/admin_status\" },\n    { text: \"📢 Broadcast Message\", callback_data: \"/admin_broadcast\" }\n  ],\n  [\n    { text: \"🔐 Force Subscribe\", callback_data: \"/admin_forcesub\" },\n    { text: \"📁 Export Users\", callback_data: \"/admin_export_users\" }\n  ],\n  [\n    { text: \"🧹 Clean Database\", callback_data: \"/admin_clean_db\" },\n    { text: \"❌ Close Panel\", callback_data: \"/admin_close\" }\n  ]\n];\n\nApi.sendMessage({\n  chat_id: (chat && chat.chatid) ? chat.chatid : user.telegramid,\n  text: text,\n  parse_mode: \"html\",\n  reply_markup: { inline_keyboard: buttons }\n});"
+    },
+    {
+      "command": "/admin_add_ch_private",
+      "help": "Add a private force channel via Chat ID and invite link",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_add_ch_private",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nUser.setProperty(\"admin_step\", \"add_ch_private_id\");\nBot.sendMessage(\"🔐 <b>Add Private Channel (Step 1/2)</b>\\n\\nSend the <b>Chat ID</b> of your private channel:\\n<i>Example:</i> <code>-1001234567890</code>\\n\\n<i>Make sure the bot is Administrator in the channel! Send /cancel to abort.</i>\");"
+    },
+    {
+      "command": "/admin_add_ch_public",
+      "help": "Add a public force channel via @username",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_add_ch_public",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nUser.setProperty(\"admin_step\", \"add_ch_public\");\nBot.sendMessage(\"📢 <b>Add Public Channel</b>\\n\\nSend the public channel <b>@username</b>:\\n<i>Example:</i> <code>@MyChannel</code> or <code>MyChannel</code>\\n\\n<i>Send /cancel to abort.</i>\");"
+    },
+    {
+      "command": "/admin_add_ch_request",
+      "help": "Add join-request force subscribe channel",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_add_ch_request",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nUser.setProperty(\"admin_step\", \"add_ch_req_id\");\nBot.sendMessage(\"📩 <b>Add Join-Request Channel (Step 1/2)</b>\\n\\nSend the <b>Chat ID</b> of the join-request channel:\\n<i>Example:</i> <code>-1001234567890</code>\\n\\n<i>Make sure this bot is added as an Administrator in your channel! Send /cancel to abort.</i>\", { parse_mode: \"HTML\" });"
+    },
+    {
+      "command": "/admin_bc_text",
+      "help": "Prompt admin to enter broadcast message",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_bc_text",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nUser.setProperty(\"admin_step\", \"broadcast_content\");\nBot.sendMessage(\"📝 <b>Enter the Broadcast Message to send to ALL users:</b>\\n\\n<i>Supports HTML formatting (<b>bold</b>, <i>italic</i>, <code>code</code>, links). Send /cancel to abort.</i>\");"
+    },
+    {
+      "command": "/admin_broadcast",
+      "help": "Broadcast system hub",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_broadcast, 📢 Broadcast",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nvar text = \"📢 <b>BROADCAST MANAGEMENT SYSTEM</b>\\n\" +\n           \"━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\" +\n           \"Send announcements, news, or promotional messages to all active bot users.\\n\\n\" +\n           \"<i>Click below to enter your broadcast message:</i>\";\n\nvar buttons = [\n  [{ text: \"📝 Send Text Broadcast\", callback_data: \"/admin_bc_text\" }],\n  [{ text: \"🔙 Back to Admin\", callback_data: \"/admin\" }]\n];\n\nApi.sendMessage({\n  chat_id: (chat && chat.chatid) ? chat.chatid : user.telegramid,\n  text: text,\n  parse_mode: \"html\",\n  reply_markup: { inline_keyboard: buttons }\n});"
+    },
+    {
+      "command": "/admin_clean_db",
+      "help": "Clean temporary data and optimize DB properties",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_clean_db",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nUser.setProperty(\"admin_step\", null);\nUser.setProperty(\"waiting_clone_email_\" + user.telegramid, null);\n\nBot.sendMessage(\"🧹 <b>Database Cleaned!</b>\\n\\nTemporary cache & admin step properties have been optimized.\", { parse_mode: \"HTML\" });\nBot.runCommand(\"/admin\");"
+    },
+    {
+      "command": "/admin_close",
+      "help": "Close admin panel message",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_close",
+      "code": "if (request && request.message) {\n  Api.deleteMessage({\n    chat_id: request.message.chat.id,\n    message_id: request.message.message_id\n  });\n} else {\n  Bot.sendMessage(\"🔒 <b>Admin Panel Closed.</b>\");\n}"
+    },
+    {
+      "command": "/admin_export_users",
+      "help": "Export registered user IDs list",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_export_users",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nvar usersList = Bot.getProperty(\"users_list\") || [];\nvar text = \"📁 <b>USER DATABASE EXPORT</b>\\n\" +\n           \"━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\" +\n           \"Total Count: <code>\" + usersList.length + \"</code>\\n\\n\" +\n           \"<i>User IDs List:</i>\\n<code>\" + usersList.slice(0, 100).join(\", \") + \"</code>\";\n\nif (usersList.length > 100) {\n  text += \"\\n<i>... and \" + (usersList.length - 100) + \" more users.</i>\";\n}\n\nBot.sendMessage(text, { parse_mode: \"HTML\" });"
+    },
+    {
+      "command": "/admin_forcesub",
+      "help": "Manage Force Subscribe channels (Public, Private, Request)",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_forcesub, 🔐 Force Subscribe",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nvar channels = Bot.getProperty(\"force_channels\") || [];\n\nvar text = \"🔐 <b>FORCE SUBSCRIBE MANAGEMENT</b>\\n\" +\n           \"━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\" +\n           \"Total Channels Configured: <b>\" + channels.length + \"</b>\\n\\n\";\n\nif (channels.length === 0) {\n  text += \"<i>No channels added yet. Force subscribe is currently inactive.</i>\\n\";\n} else {\n  for (var i = 0; i < channels.length; i++) {\n    var ch = channels[i];\n    var status = ch.enabled !== false ? \"🟢 Enabled\" : \"🔴 Disabled\";\n    var typeBadge = ch.type === \"request\" ? \"📩 Join-Request\" : (ch.type === \"private\" ? \"🔒 Private\" : \"📢 Public\");\n    text += (i + 1) + \". <b>\" + ch.title + \"</b> (\" + status + \")\\n\" +\n            \"   Type: <code>\" + typeBadge + \"</code> | ID: <code>\" + (ch.channel_id || \"N/A\") + \"</code>\\n\" +\n            \"   Link: \" + (ch.invite_link || \"N/A\") + \"\\n\\n\";\n  }\n}\n\nvar buttons = [\n  [\n    { text: \"➕ Add Public Channel\", callback_data: \"/admin_add_ch_public\" },\n    { text: \"➕ Add Private Channel\", callback_data: \"/admin_add_ch_private\" }\n  ],\n  [\n    { text: \"📩 Add Join-Request Channel\", callback_data: \"/admin_add_ch_request\" },\n    { text: \"🗑️ Remove Channel\", callback_data: \"/admin_remove_channel\" }\n  ],\n  [\n    { text: \"🔙 Back to Admin\", callback_data: \"/admin\" }\n  ]\n];\n\nApi.sendMessage({\n  chat_id: (chat && chat.chatid) ? chat.chatid : user.telegramid,\n  text: text,\n  parse_mode: \"html\",\n  reply_markup: { inline_keyboard: buttons }\n});"
+    },
+    {
+      "command": "/admin_remove_channel",
+      "help": "Remove a channel from force subscribe list",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_remove_channel",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nvar channels = Bot.getProperty(\"force_channels\") || [];\nif (channels.length === 0) {\n  Bot.sendMessage(\"ℹ️ <i>No channels to remove.</i>\");\n  Bot.runCommand(\"/admin_forcesub\");\n  return;\n}\n\nvar text = \"🗑️ <b>REMOVE FORCE CHANNEL</b>\\n\\nSend the <b>Number (Index)</b> of the channel to remove:\\n\\n\";\nfor (var i = 0; i < channels.length; i++) {\n  text += (i + 1) + \". <b>\" + channels[i].title + \"</b> (\" + (channels[i].channel_id || \"N/A\") + \")\\n\";\n}\ntext += \"\\n<i>Send /cancel to abort.</i>\";\n\nUser.setProperty(\"admin_step\", \"remove_channel_idx\");\nBot.sendMessage(text);"
+    },
+    {
+      "command": "/admin_status",
+      "help": "View detailed bot analytics and statistics",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "admin_status, 📊 Bot Status",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nvar totalUsers = Bot.getProperty(\"total_users_count\") || 0;\nvar usersList = Bot.getProperty(\"users_list\") || [];\nif (usersList.length > totalUsers) {\n  totalUsers = usersList.length;\n}\nvar channels = Bot.getProperty(\"force_channels\") || [];\n\nvar msg = \"📊 <b>LIVE BOT STATISTICS & ANALYTICS</b>\\n\" +\n          \"━━━━━━━━━━━━━━━━━━━━━━━━━━\\n\" +\n          \"👥 <b>Total Users Count:</b> <code>\" + totalUsers + \"</code>\\n\" +\n          \"📢 <b>Active Force Channels:</b> <code>\" + channels.length + \"</code>\\n\" +\n          \"👑 <b>Master Admin ID:</b> <code>\" + ADMIN_ID + \"</code>\\n\" +\n          \"🤖 <b>Bot Platform:</b> Bots.Business (BJS Engine)\\n\" +\n          \"⏰ <b>Status Check Time:</b> <code>\" + new Date().toISOString() + \"</code>\\n\";\n\nvar buttons = [\n  [{ text: \"🔙 Back to Admin\", callback_data: \"/admin\" }]\n];\n\nApi.sendMessage({\n  chat_id: (chat && chat.chatid) ? chat.chatid : user.telegramid,\n  text: msg,\n  parse_mode: \"html\",\n  reply_markup: { inline_keyboard: buttons }\n});"
+    },
+    {
+      "command": "/cancel",
+      "help": "Cancel current active admin operation",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "cancel, /abort",
+      "code": "User.setProperty(\"admin_step\", null);\nBot.sendMessage(\"❌ <b>Action Cancelled.</b> Returning to menu.\");\nvar ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) === ADMIN_ID) {\n  Bot.runCommand(\"/admin\");\n} else {\n  Bot.runCommand(\"/start\");\n}"
+    },
+    {
+      "command": "*",
+      "help": "Catch-all handler for chat_shared, users_shared, forwards, text and admin inputs",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "",
+      "code": "function escapeHtml(text) {\n  if (!text) return \"\";\n  return String(text)\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\");\n}\n\nfunction getMainKeyboard() {\n  return {\n    keyboard: [\n      [\n        {\n          text: \"My channels\",\n          request_chat: {\n            request_id: 1,\n            chat_is_channel: true,\n            chat_is_created: true,\n            request_title: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Admin channels\",\n          request_chat: {\n            request_id: 2,\n            chat_is_channel: true,\n            user_administrator_rights: {\n              is_anonymous: false,\n              can_manage_chat: false,\n              can_delete_messages: false,\n              can_manage_video_chats: false,\n              can_restrict_members: false,\n              can_promote_members: false,\n              can_change_info: false,\n              can_invite_users: false,\n              can_post_messages: true\n            },\n            request_title: true,\n            request_username: true\n          }\n        }\n      ],\n      [\n        {\n          text: \"Channel\",\n          request_chat: {\n            request_id: 3,\n            chat_is_channel: true,\n            request_title: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Group\",\n          request_chat: {\n            request_id: 4,\n            chat_is_channel: false,\n            request_title: true,\n            request_username: true\n          }\n        }\n      ],\n      [\n        {\n          text: \"User\",\n          request_users: {\n            request_id: 5,\n            user_is_bot: false,\n            request_name: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Bot\",\n          request_users: {\n            request_id: 6,\n            user_is_bot: true,\n            request_name: true,\n            request_username: true\n          }\n        }\n      ],\n      [\n        {\n          text: \"My groups\",\n          request_chat: {\n            request_id: 7,\n            chat_is_channel: false,\n            chat_is_created: true,\n            request_title: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Admin groups\",\n          request_chat: {\n            request_id: 8,\n            chat_is_channel: false,\n            user_administrator_rights: {\n              is_anonymous: false,\n              can_manage_chat: true,\n              can_delete_messages: false,\n              can_manage_video_chats: false,\n              can_restrict_members: false,\n              can_promote_members: false,\n              can_change_info: false,\n              can_invite_users: false\n            },\n            request_title: true,\n            request_username: true\n          }\n        }\n      ]\n    ],\n    resize_keyboard: true\n  };\n}\n\n// 0. Auto-Capture Telegram chat_join_request:\n// Request pending rahegi - bot na toh approve karega na wait karega.\n// Request chali gayi matlab user verified hai!\nif (typeof tgUpdate !== \"undefined\" && tgUpdate && tgUpdate.chat_join_request) {\n  var joinReq = tgUpdate.chat_join_request;\n  var fromUser = joinReq.from;\n  var targetChat = joinReq.chat;\n  if (fromUser && targetChat) {\n    User.setProperty(\"fsub_requested_\" + targetChat.id, true, \"boolean\");\n    // NO Api.approveChatJoinRequest - request remains pending in channel!\n  }\n  return;\n}\n\nvar ADMIN_ID = \"8710308658\";\nvar userId = user ? user.telegramid : null;\nvar chatId = (chat && chat.chatid) ? chat.chatid : userId;\nif (!chatId) return;\n\n// 1. Check if user is waiting to send clone email for /41\nif (userId && Bot.getProperty(\"waiting_clone_email_\" + userId)) {\n  var isEmail = message && message.indexOf(\"@\") !== -1 && message.indexOf(\".\") !== -1;\n  if (isEmail) {\n    Bot.run({\n      command: \"/41\",\n      options: { email: message.trim() }\n    });\n    return;\n  }\n}\n\n// 2. Check if admin is currently in an interactive input step\nvar adminStep = User.getProperty(\"admin_step\");\nif (String(userId) === ADMIN_ID && adminStep) {\n  Bot.run({\n    command: \"/handle_admin_input\",\n    options: { message: message }\n  });\n  return;\n}\n\n// Ignore known commands to prevent duplicate processing\nif (message) {\n  var m = message.trim();\n  if (\n    m === \"/start\" || m === \"/id\" || m === \"/help\" ||\n    m === \"/41\" || m === \"41\" || m === \"/clone\" || m === \"clone\" ||\n    m.indexOf(\"/41 \") === 0 || m.indexOf(\"41 \") === 0 ||\n    m === \"/admin\" || m === \"admin\" || m === \"/cancel\" || m === \"cancel\" ||\n    m === \"/menu_admin_panel\" || m === \"menu_admin_panel\"\n  ) {\n    return;\n  }\n}\n\nvar req = (typeof request !== \"undefined\" && request) ? request : ((typeof tgUpdate !== \"undefined\" && tgUpdate && tgUpdate.message) ? tgUpdate.message : null);\n\n// 3. CHAT SHARED (Channels & Groups)\nif (req && req.chat_shared) {\n  var cs = req.chat_shared;\n  var targetCid = cs.chat_id;\n  var title = cs.title || (\"Chat \" + targetCid);\n  var username = cs.username;\n  var reqId = cs.request_id;\n\n  var typeLabels = {\n    1: \"📢 My Channel (Owner)\",\n    2: \"📢 Admin Channel\",\n    3: \"📢 Channel\",\n    4: \"👥 Group\",\n    7: \"👥 My Group (Owner)\",\n    8: \"👥 Admin Group\"\n  };\n  var typeLabel = typeLabels[reqId] || \"💬 Chat\";\n\n  var lines = [\n    \"<b>\" + escapeHtml(title) + \"</b>\",\n    \"🆔 Chat ID: <code>\" + targetCid + \"</code>\"\n  ];\n  if (username) {\n    lines.push(\"🔗 Username: @\" + escapeHtml(username));\n  }\n  lines.push(\"📌 Type: \" + typeLabel);\n\n  Api.sendMessage({\n    chat_id: chatId,\n    text: lines.join(\"\\n\"),\n    parse_mode: \"html\"\n  });\n  return;\n}\n\n// 4. USERS SHARED (User & Bot)\nif (req && req.users_shared) {\n  var us = req.users_shared;\n  var isBot = (us.request_id === 6);\n  var usersList = us.users || [];\n\n  for (var i = 0; i < usersList.length; i++) {\n    var sharedU = usersList[i];\n    var uid = sharedU.user_id;\n    var uname = sharedU.first_name || \"\";\n    if (sharedU.last_name) {\n      uname = (uname + \" \" + sharedU.last_name).trim();\n    }\n    if (!uname) {\n      uname = \"User \" + uid;\n    }\n    var uUsername = sharedU.username;\n    var typeStr = isBot ? \"🤖 Bot\" : \"👤 User\";\n\n    var linesU = [\n      \"<b>\" + escapeHtml(uname) + \"</b>\",\n      \"🆔 ID: <code>\" + uid + \"</code>\"\n    ];\n    if (uUsername) {\n      linesU.push(\"🔗 Username: @\" + escapeHtml(uUsername));\n    }\n    linesU.push(\"📌 Type: \" + typeStr);\n\n    Api.sendMessage({\n      chat_id: chatId,\n      text: linesU.join(\"\\n\"),\n      parse_mode: \"html\"\n    });\n  }\n  return;\n}\n\n// Fallback: older single user_shared\nif (req && req.user_shared) {\n  var oldUs = req.user_shared;\n  var oldUid = oldUs.user_id;\n  var oldIsBot = (oldUs.request_id === 6);\n  var oldTypeStr = oldIsBot ? \"🤖 Bot\" : \"👤 User\";\n\n  var oldLines = [\n    \"<b>Shared User</b>\",\n    \"🆔 ID: <code>\" + oldUid + \"</code>\",\n    \"📌 Type: \" + oldTypeStr\n  ];\n  Api.sendMessage({\n    chat_id: chatId,\n    text: oldLines.join(\"\\n\"),\n    parse_mode: \"html\"\n  });\n  return;\n}\n\n// 5. FORWARDED MESSAGES\nif (req && (req.forward_from_chat || req.forward_from || req.forward_sender_name)) {\n  if (req.forward_from_chat) {\n    var fc = req.forward_from_chat;\n    var fTitle = fc.title || \"Channel / Group\";\n    var fType = fc.type ? (fc.type.charAt(0).toUpperCase() + fc.type.slice(1)) : \"Chat\";\n    var fLines = [\n      \"📢 <b>\" + escapeHtml(fTitle) + \"</b>\",\n      \"🆔 Chat ID: <code>\" + fc.id + \"</code>\"\n    ];\n    if (fc.username) {\n      fLines.push(\"🔗 Username: @\" + escapeHtml(fc.username));\n    }\n    fLines.push(\"📌 Type: \" + fType);\n\n    Api.sendMessage({\n      chat_id: chatId,\n      text: fLines.join(\"\\n\"),\n      parse_mode: \"html\"\n    });\n    return;\n  }\n\n  if (req.forward_from) {\n    var fu = req.forward_from;\n    var fuName = fu.first_name || \"User\";\n    if (fu.last_name) {\n      fuName = (fuName + \" \" + fu.last_name).trim();\n    }\n    var fuType = fu.is_bot ? \"🤖 Bot\" : \"👤 User\";\n    var fuLines = [\n      \"👤 <b>\" + escapeHtml(fuName) + \"</b>\",\n      \"🆔 User ID: <code>\" + fu.id + \"</code>\"\n    ];\n    if (fu.username) {\n      fuLines.push(\"🔗 Username: @\" + escapeHtml(fu.username));\n    }\n    fuLines.push(\"📌 Type: \" + fuType);\n\n    Api.sendMessage({\n      chat_id: chatId,\n      text: fuLines.join(\"\\n\"),\n      parse_mode: \"html\"\n    });\n    return;\n  }\n\n  if (req.forward_sender_name) {\n    Api.sendMessage({\n      chat_id: chatId,\n      text: \"👤 <b>\" + escapeHtml(req.forward_sender_name) + \"</b>\\n⚠️ <i>User privacy settings hide their Telegram ID in forwards.</i>\",\n      parse_mode: \"html\"\n    });\n    return;\n  }\n}\n\n// 6. REGULAR TEXT / OTHER MESSAGES (Show user ID + Keyboard)\nvar senderU = user || {};\nvar senderName = senderU.first_name || \"User\";\nif (senderU.last_name) {\n  senderName = (senderName + \" \" + senderU.last_name).trim();\n}\nvar normText = \"<b>\" + escapeHtml(senderName) + \"</b>\\n\" +\n               \"🆔 Chat ID: <code>\" + chatId + \"</code>\\n\" +\n               \"👤 User ID: <code>\" + senderU.telegramid + \"</code>\";\nif (senderU.username) {\n  normText += \"\\n🔗 Username: @\" + escapeHtml(senderU.username);\n}\n\nApi.sendMessage({\n  chat_id: chatId,\n  text: normText,\n  parse_mode: \"html\",\n  reply_markup: getMainKeyboard()\n});"
+    },
+    {
+      "command": "/check_sub",
+      "help": "Verify channel subscription status (Pending requests are accepted as verified!)",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "check_sub, 🔄 Verify Membership",
+      "code": "var userId = user.telegramid;\nvar forceChannels = Bot.getProperty(\"force_channels\") || [];\nvar activeChannels = [];\nfor (var i = 0; i < forceChannels.length; i++) {\n  if (forceChannels[i].enabled !== false) {\n    activeChannels.push(forceChannels[i]);\n  }\n}\n\nif (activeChannels.length === 0) {\n  User.setProperty(\"force_sub_verified\", true, \"boolean\");\n  Bot.sendMessage(\"✅ <b>Verified! Access granted.</b>\", { parse_mode: \"HTML\" });\n  Bot.runCommand(\"/start\");\n  return;\n}\n\n// Start checking at index 0\nUser.setProperty(\"check_sub_index\", 0, \"integer\");\n\nfunction checkNextChannel(idx) {\n  if (idx >= activeChannels.length) {\n    User.setProperty(\"force_sub_verified\", true, \"boolean\");\n    Bot.sendMessage(\"✅ <b>Verification successful! Welcome. 🎉</b>\", { parse_mode: \"HTML\" });\n    Bot.runCommand(\"/start\");\n    return;\n  }\n\n  var ch = activeChannels[idx];\n\n  // Join-Request Channel:\n  // User ki request pending me hai (fsub_requested_... is true), toh bina admin approval ke VERIFIED maano!\n  if (ch.type === \"request\") {\n    var isRequested = User.getProperty(\"fsub_requested_\" + ch.channel_id);\n    if (isRequested) {\n      User.setProperty(\"check_sub_index\", idx + 1, \"integer\");\n      checkNextChannel(idx + 1);\n      return;\n    }\n  }\n\n  // Otherwise check via Api.getChatMember\n  var targetChatId = String(ch.channel_id || \"\").trim();\n  Api.getChatMember({\n    chat_id: targetChatId,\n    user_id: parseInt(userId),\n    on_result: \"/on_check_result\",\n    on_error: \"/on_check_result\"\n  });\n}\n\ncheckNextChannel(0);"
+    },
+    {
+      "command": "/handle_admin_input",
+      "help": "Processes conversational admin input steps",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "handle_admin_input",
+      "code": "var ADMIN_ID = \"8710308658\";\nif (String(user.telegramid) !== ADMIN_ID) return;\n\nvar step = User.getProperty(\"admin_step\");\nif (!step) return;\n\nvar text = \"\";\nif (typeof message !== \"undefined\" && message) {\n  text = String(message).trim();\n}\nif (!text && typeof options !== \"undefined\" && options && options.message) {\n  text = String(options.message).trim();\n}\n\nif (text.toLowerCase() === \"/cancel\" || text.toLowerCase() === \"cancel\") {\n  User.setProperty(\"admin_step\", null);\n  Bot.sendMessage(\"❌ <i>Operation cancelled.</i>\");\n  Bot.runCommand(\"/admin\");\n  return;\n}\n\n// 1. BROADCAST CONTENT\nif (step === \"broadcast_content\") {\n  User.setProperty(\"admin_step\", null);\n  var usersList = Bot.getProperty(\"users_list\") || [];\n  if (usersList.length === 0) {\n    Bot.sendMessage(\"❌ <i>No users registered in database to broadcast to.</i>\");\n    Bot.runCommand(\"/admin\");\n    return;\n  }\n\n  Bot.sendMessage(\"🚀 <b>Broadcasting to \" + usersList.length + \" users...</b>\\nPlease wait a moment.\", { parse_mode: \"HTML\" });\n\n  var sent = 0;\n  var failed = 0;\n  for (var i = 0; i < usersList.length; i++) {\n    try {\n      Api.sendMessage({\n        chat_id: usersList[i],\n        text: text,\n        parse_mode: \"html\"\n      });\n      sent++;\n    } catch (e) {\n      failed++;\n    }\n  }\n\n  var report = \"✅ <b>Broadcast Finished!</b>\\n\\n\" +\n               \"📤 <b>Delivered:</b> <code>\" + sent + \"</code>\\n\" +\n               \"❌ <b>Failed / Blocked:</b> <code>\" + failed + \"</code>\\n\" +\n               \"👥 <b>Total Target:</b> <code>\" + usersList.length + \"</code>\";\n  Bot.sendMessage(report, { parse_mode: \"HTML\" });\n  Bot.runCommand(\"/admin\");\n  return;\n}\n\n// 2. ADD PUBLIC CHANNEL\nif (step === \"add_ch_public\") {\n  User.setProperty(\"admin_step\", null);\n  var username = text.replace(\"@\", \"\").trim();\n  var channels = Bot.getProperty(\"force_channels\") || [];\n  channels.push({\n    title: \"@\" + username,\n    type: \"public\",\n    channel_id: \"@\" + username,\n    invite_link: \"https://t.me/\" + username,\n    enabled: true\n  });\n  Bot.setProperty(\"force_channels\", channels, \"json\");\n  Bot.sendMessage(\"✅ <b>Public Channel Added:</b> @\" + username, { parse_mode: \"HTML\" });\n  Bot.runCommand(\"/admin_forcesub\");\n  return;\n}\n\n// 3. ADD PRIVATE CHANNEL (Step 1: ID)\nif (step === \"add_ch_private_id\") {\n  User.setProperty(\"admin_temp_ch_id\", text);\n  User.setProperty(\"admin_step\", \"add_ch_private_link\");\n  Bot.sendMessage(\"🔗 <b>Now send the Invite Link for this channel:</b>\\n<i>Example:</i> <code>https://t.me/+xxxxxxx</code>\", { parse_mode: \"HTML\" });\n  return;\n}\n\n// 4. ADD PRIVATE CHANNEL (Step 2: Link)\nif (step === \"add_ch_private_link\") {\n  var chId = User.getProperty(\"admin_temp_ch_id\");\n  User.setProperty(\"admin_step\", null);\n  User.setProperty(\"admin_temp_ch_id\", null);\n\n  var channels = Bot.getProperty(\"force_channels\") || [];\n  channels.push({\n    title: \"Private Channel (\" + chId + \")\",\n    type: \"private\",\n    channel_id: chId,\n    invite_link: text,\n    enabled: true\n  });\n  Bot.setProperty(\"force_channels\", channels, \"json\");\n  Bot.sendMessage(\"✅ <b>Private Channel Added Successfully!</b>\", { parse_mode: \"HTML\" });\n  Bot.runCommand(\"/admin_forcesub\");\n  return;\n}\n\n// 5. ADD JOIN-REQUEST CHANNEL (Step 1: ID)\nif (step === \"add_ch_req_id\") {\n  User.setProperty(\"admin_temp_ch_id\", text);\n  User.setProperty(\"admin_step\", \"add_ch_req_link\");\n  Bot.sendMessage(\"🔗 <b>Join-Request Channel (Step 2/2)</b>\\n\\nNow send the <b>Join-Request Link</b>:\\n<i>Example:</i> <code>https://t.me/+ReqLink...</code>\\n\\n<i>Send /cancel to abort.</i>\", { parse_mode: \"HTML\" });\n  return;\n}\n\n// 6. ADD JOIN-REQUEST CHANNEL (Step 2: Link)\nif (step === \"add_ch_req_link\") {\n  var reqChId = User.getProperty(\"admin_temp_ch_id\");\n  User.setProperty(\"admin_step\", null);\n  User.setProperty(\"admin_temp_ch_id\", null);\n\n  var channels = Bot.getProperty(\"force_channels\") || [];\n  channels.push({\n    title: \"Request Channel (\" + reqChId + \")\",\n    type: \"request\",\n    channel_id: reqChId,\n    invite_link: text,\n    enabled: true\n  });\n  Bot.setProperty(\"force_channels\", channels, \"json\");\n  Bot.sendMessage(\"✅ <b>Join-Request Channel Added Successfully!</b>\\n🆔 ID: <code>\" + reqChId + \"</code>\\n🔗 Link: \" + text, { parse_mode: \"HTML\" });\n  Bot.runCommand(\"/admin_forcesub\");\n  return;\n}\n\n// 7. REMOVE CHANNEL BY INDEX\nif (step === \"remove_channel_idx\") {\n  User.setProperty(\"admin_step\", null);\n  var idx = parseInt(text) - 1;\n  var channels = Bot.getProperty(\"force_channels\") || [];\n  if (isNaN(idx) || idx < 0 || idx >= channels.length) {\n    Bot.sendMessage(\"❌ <i>Invalid channel number.</i>\");\n  } else {\n    var removed = channels.splice(idx, 1);\n    Bot.setProperty(\"force_channels\", channels, \"json\");\n    Bot.sendMessage(\"🗑️ <b>Removed:</b> \" + (removed[0] ? removed[0].title : \"Channel\"), { parse_mode: \"HTML\" });\n  }\n  Bot.runCommand(\"/admin_forcesub\");\n  return;\n}"
+    },
+    {
+      "command": "/on_check_result",
+      "help": "Process Telegram getChatMember result callback",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "on_check_result",
+      "code": "var userId = user.telegramid;\nvar idx = User.getProperty(\"check_sub_index\") || 0;\nvar forceChannels = Bot.getProperty(\"force_channels\") || [];\nvar activeChannels = [];\nfor (var i = 0; i < forceChannels.length; i++) {\n  if (forceChannels[i].enabled !== false) {\n    activeChannels.push(forceChannels[i]);\n  }\n}\n\nvar currentCh = (idx < activeChannels.length) ? activeChannels[idx] : null;\n\n// Extract status from options\nvar status = null;\nif (typeof options === \"object\" && options !== null) {\n  if (options.result && options.result.status) status = options.result.status;\n  else if (options.status) status = options.status;\n}\n\nvar isMember = (status === \"creator\" || status === \"administrator\" || status === \"member\");\n\n// Agar Join-Request channel hai aur request pending me gayi hai, toh bhi VERIFIED mana jayega!\nif (!isMember && currentCh && currentCh.type === \"request\") {\n  if (User.getProperty(\"fsub_requested_\" + currentCh.channel_id)) {\n    isMember = true;\n  }\n}\n\nif (isMember) {\n  idx++;\n  if (idx < activeChannels.length) {\n    User.setProperty(\"check_sub_index\", idx, \"integer\");\n    var nextCh = activeChannels[idx];\n\n    // Next channel bhi join-request hai aur pending request exist karti hai\n    if (nextCh.type === \"request\" && User.getProperty(\"fsub_requested_\" + nextCh.channel_id)) {\n      Bot.runCommand(\"/on_check_result\");\n      return;\n    }\n\n    Api.getChatMember({\n      chat_id: String(nextCh.channel_id).trim(),\n      user_id: parseInt(userId),\n      on_result: \"/on_check_result\",\n      on_error: \"/on_check_result\"\n    });\n    return;\n  } else {\n    // All channels verified!\n    User.setProperty(\"force_sub_verified\", true, \"boolean\");\n    Bot.sendMessage(\"✅ <b>Verification successful! Welcome. 🎉</b>\", { parse_mode: \"HTML\" });\n    Bot.runCommand(\"/start\");\n    return;\n  }\n} else {\n  var chTitle = currentCh ? (currentCh.title || \"the channel\") : \"all channels\";\n  Bot.sendMessage(\"❌ <b>Aapne abhi tak \" + chTitle + \" join ya request nahi kiya hai!</b>\\n\\nKripya pehle link par click karke channel me request bhejein aur phir <b>Verify Membership</b> par click karein.\", { parse_mode: \"HTML\" });\n  Bot.runCommand(\"/start\");\n}"
+    },
+    {
+      "command": "/start",
+      "help": "Start the bot and get Chat ID with 8-button menu",
+      "need_reply": false,
+      "auto_retry_time": "",
+      "folder": "",
+      "answer": "",
+      "keyboard": "",
+      "aliases": "cmd_start, 🔙 Main Menu, Main Menu, /start, /id, id, /help",
+      "code": "var ADMIN_ID = \"8710308658\";\nBot.setProperty(\"admin_id\", ADMIN_ID, \"string\");\n\nfunction escapeHtml(text) {\n  if (!text) return \"\";\n  return String(text)\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\");\n}\nfunction getMainKeyboard() {\n  return {\n    keyboard: [\n      [\n        {\n          text: \"My channels\",\n          request_chat: {\n            request_id: 1,\n            chat_is_channel: true,\n            chat_is_created: true,\n            request_title: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Admin channels\",\n          request_chat: {\n            request_id: 2,\n            chat_is_channel: true,\n            user_administrator_rights: {\n              is_anonymous: false,\n              can_manage_chat: false,\n              can_delete_messages: false,\n              can_manage_video_chats: false,\n              can_restrict_members: false,\n              can_promote_members: false,\n              can_change_info: false,\n              can_invite_users: false,\n              can_post_messages: true\n            },\n            request_title: true,\n            request_username: true\n          }\n        }\n      ],\n      [\n        {\n          text: \"Channel\",\n          request_chat: {\n            request_id: 3,\n            chat_is_channel: true,\n            request_title: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Group\",\n          request_chat: {\n            request_id: 4,\n            chat_is_channel: false,\n            request_title: true,\n            request_username: true\n          }\n        }\n      ],\n      [\n        {\n          text: \"User\",\n          request_users: {\n            request_id: 5,\n            user_is_bot: false,\n            request_name: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Bot\",\n          request_users: {\n            request_id: 6,\n            user_is_bot: true,\n            request_name: true,\n            request_username: true\n          }\n        }\n      ],\n      [\n        {\n          text: \"My groups\",\n          request_chat: {\n            request_id: 7,\n            chat_is_channel: false,\n            chat_is_created: true,\n            request_title: true,\n            request_username: true\n          }\n        },\n        {\n          text: \"Admin groups\",\n          request_chat: {\n            request_id: 8,\n            chat_is_channel: false,\n            user_administrator_rights: {\n              is_anonymous: false,\n              can_manage_chat: true,\n              can_delete_messages: false,\n              can_manage_video_chats: false,\n              can_restrict_members: false,\n              can_promote_members: false,\n              can_change_info: false,\n              can_invite_users: false\n            },\n            request_title: true,\n            request_username: true\n          }\n        }\n      ]\n    ],\n    resize_keyboard: true\n  };\n}\n\n// 1. User registration & analytics tracking\nvar userId = user.telegramid;\nif (!User.getProperty(\"bot_user_registered\")) {\n  User.setProperty(\"bot_user_registered\", true, \"boolean\");\n  var curCount = Bot.getProperty(\"total_users_count\") || 0;\n  Bot.setProperty(\"total_users_count\", curCount + 1, \"integer\");\n  var usersList = Bot.getProperty(\"users_list\") || [];\n  if (usersList.indexOf(userId) === -1) {\n    usersList.push(userId);\n    Bot.setProperty(\"users_list\", usersList, \"json\");\n  }\n}\n\n// Clear user temp steps\nUser.setProperty(\"admin_step\", null);\n\n// 2. Real-Time Force Channel (FSub) Gate Check\nvar forceChannels = Bot.getProperty(\"force_channels\") || [];\nvar activeChannels = [];\nfor (var i = 0; i < forceChannels.length; i++) {\n  if (forceChannels[i].enabled !== false) {\n    activeChannels.push(forceChannels[i]);\n  }\n}\n\nvar isOwner = (String(userId) === ADMIN_ID);\nvar isVerified = User.getProperty(\"force_sub_verified\");\n\nif (!isOwner && activeChannels.length > 0 && !isVerified) {\n  var buttons = [];\n  for (var j = 0; j < activeChannels.length; j++) {\n    var ch = activeChannels[j];\n    var link = ch.invite_link || \"https://t.me/\" + String(ch.channel_id).replace(\"@\", \"\");\n    buttons.push([{ text: \"📢 Join \" + (ch.title || \"Channel\"), url: link }]);\n  }\n  buttons.push([{ text: \"🔄 Verify Membership\", callback_data: \"/check_sub\" }]);\n\n  var fsubText = \"⛔ <b>Access Restricted!</b>\\n\\n\" +\n                 \"Aapko bot use karne ke liye hamare official channels join karne honge.\\n\" +\n                 \"Neeche diye gaye channels join karein aur <b>Verify Membership</b> par click karein:\";\n\n  Api.sendMessage({\n    chat_id: (chat && chat.chatid) ? chat.chatid : userId,\n    text: fsubText,\n    parse_mode: \"html\",\n    reply_markup: { inline_keyboard: buttons }\n  });\n  return;\n}\n\n// 3. Send User ID & Attach 8 Request Buttons\nvar u = user || {};\nvar c = chat || {};\nvar name = u.first_name || \"User\";\nif (u.last_name) {\n  name = (name + \" \" + u.last_name).trim();\n}\n\nvar text = \"<b>\" + escapeHtml(name) + \"</b>\\n\" +\n           \"🆔 Chat ID: <code>\" + (c.chatid || u.telegramid) + \"</code>\\n\" +\n           \"👤 User ID: <code>\" + u.telegramid + \"</code>\";\n\nif (u.username) {\n  text += \"\\n🔗 Username: @\" + escapeHtml(u.username);\n}\n\nApi.sendMessage({\n  chat_id: c.chatid || u.telegramid,\n  text: text,\n  parse_mode: \"html\",\n  reply_markup: getMainKeyboard()\n});"
+    }
+  ]
+}

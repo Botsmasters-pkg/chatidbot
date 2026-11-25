@@ -1,0 +1,7 @@
+# Logs & cache
+*.log
+__pycache__/
+*.pyc
+
+# Local scratch
+scratch/
