@@ -238,16 +238,11 @@ if (req && req.users_shared) {
       uname = "User " + uid;
     }
     var uUsername = sharedU.username;
-    var typeStr = isBot ? "🤖 Bot" : "👤 User";
-
     var linesU = [
-      "<b>" + escapeHtml(uname) + "</b>",
-      "🆔 ID: <code>" + uid + "</code>"
+      "Your ID: <code>" + uid + "</code>",
+      "Your Name: " + escapeHtml(uname),
+      "Your Username: @" + (uUsername ? escapeHtml(uUsername) : "N/A")
     ];
-    if (uUsername) {
-      linesU.push("🔗 Username: @" + escapeHtml(uUsername));
-    }
-    linesU.push("📌 Type: " + typeStr);
 
     Api.sendMessage({
       chat_id: chatId,
@@ -307,15 +302,12 @@ if (req && (req.forward_from_chat || req.forward_from || req.forward_sender_name
     if (fu.last_name) {
       fuName = (fuName + " " + fu.last_name).trim();
     }
-    var fuType = fu.is_bot ? "🤖 Bot" : "👤 User";
+    var fuUsernameStr = fu.username ? ("@" + escapeHtml(fu.username)) : "N/A";
     var fuLines = [
-      "👤 <b>" + escapeHtml(fuName) + "</b>",
-      "🆔 User ID: <code>" + fu.id + "</code>"
+      "Your ID: <code>" + fu.id + "</code>",
+      "Your Name: " + escapeHtml(fuName),
+      "Your Username: " + fuUsernameStr
     ];
-    if (fu.username) {
-      fuLines.push("🔗 Username: @" + escapeHtml(fu.username));
-    }
-    fuLines.push("📌 Type: " + fuType);
 
     Api.sendMessage({
       chat_id: chatId,
@@ -341,12 +333,9 @@ var senderName = senderU.first_name || "User";
 if (senderU.last_name) {
   senderName = (senderName + " " + senderU.last_name).trim();
 }
-var normText = "<b>" + escapeHtml(senderName) + "</b>\n" +
-               "🆔 Chat ID: <code>" + chatId + "</code>\n" +
-               "👤 User ID: <code>" + senderU.telegramid + "</code>";
-if (senderU.username) {
-  normText += "\n🔗 Username: @" + escapeHtml(senderU.username);
-}
+var normText = "Your ID: <code>" + chatId + "</code>\n" +
+               "Your Name: " + escapeHtml(senderName) + "\n" +
+               "Your Username: @" + (senderU.username ? escapeHtml(senderU.username) : "N/A");
 
 Api.sendMessage({
   chat_id: chatId,

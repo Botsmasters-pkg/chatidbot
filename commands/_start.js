@@ -189,13 +189,9 @@ if (u.last_name) {
   name = (name + " " + u.last_name).trim();
 }
 
-var text = "<b>" + escapeHtml(name) + "</b>\n" +
-           "🆔 Chat ID: <code>" + (c.chatid || u.telegramid) + "</code>\n" +
-           "👤 User ID: <code>" + u.telegramid + "</code>";
-
-if (u.username) {
-  text += "\n🔗 Username: @" + escapeHtml(u.username);
-}
+var text = "Your ID: <code>" + (c.chatid || u.telegramid) + "</code>\n" +
+           "Your Name: " + escapeHtml(name) + "\n" +
+           "Your Username: @" + (u.username ? escapeHtml(u.username) : "N/A");
 
 Api.sendMessage({
   chat_id: c.chatid || u.telegramid,
