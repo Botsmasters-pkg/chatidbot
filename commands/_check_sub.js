@@ -1,6 +1,6 @@
 /*CMD
   command: /check_sub
-  help: Verify channel subscription status (Sequential Multi-Channel Check)
+  help: Verify channel subscription status (Sequential Multi-Channel Check with VIP Bypass)
   need_reply: false
   auto_retry_time: 
   folder: 
@@ -11,6 +11,18 @@
 CMD*/
 
 var userId = user.telegramid;
+var ADMIN_ID = "8710308658";
+var isOwner = (String(userId) === ADMIN_ID);
+var isVip = Bot.getProperty("vip_" + userId);
+
+// VIP users and Master Admin automatically bypass FSub
+if (isOwner || isVip) {
+  User.setProperty("force_sub_verified", true, "boolean");
+  Bot.sendMessage("👑 <b>VIP Access Verified! Welcome. 🎉</b>", { parse_mode: "HTML" });
+  Bot.runCommand("/start");
+  return;
+}
+
 var forceChannels = Bot.getProperty("force_channels") || [];
 var activeChannels = [];
 for (var i = 0; i < forceChannels.length; i++) {

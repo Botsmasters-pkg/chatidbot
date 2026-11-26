@@ -19,13 +19,16 @@ if (usersList.length > totalUsers) {
   totalUsers = usersList.length;
 }
 var channels = Bot.getProperty("force_channels") || [];
+var vipList = Bot.getProperty("vip_users_list") || [];
 
 var msg = "📊 <b>LIVE BOT STATISTICS & ANALYTICS</b>\n" +
           "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
           "👥 <b>Total Users Count:</b> <code>" + totalUsers + "</code>\n" +
+          "👑 <b>VIP Members Count:</b> <code>" + vipList.length + "</code>\n" +
           "📢 <b>Active Force Channels:</b> <code>" + channels.length + "</code>\n" +
           "👑 <b>Master Admin ID:</b> <code>" + ADMIN_ID + "</code>\n" +
           "🤖 <b>Bot Platform:</b> Bots.Business (BJS Engine)\n" +
+          "💎 <b>Premium Features:</b> Active (Inspector + 1-Tap Copy + VIP)\n" +
           "⏰ <b>Status Check Time:</b> <code>" + new Date().toISOString() + "</code>\n";
 
 var buttons = [
