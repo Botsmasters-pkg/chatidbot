@@ -3,5 +3,9 @@
 __pycache__/
 *.pyc
 
-# Local scratch
+# Local media & scratch
+*.mp4
+*.mkv
+*.bb
+*.py
 scratch/
