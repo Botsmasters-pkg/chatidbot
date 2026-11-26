@@ -24,13 +24,11 @@ if (usersList.length > totalUsers) {
   totalUsers = usersList.length;
 }
 var channels = Bot.getProperty("force_channels") || [];
-var vipList = Bot.getProperty("vip_users_list") || [];
 
 var text = "⚡ <b>TOXIC CHAT ID BOT — MASTER ADMIN PANEL</b>\n" +
            "━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
            "👑 <b>Admin:</b> <code>" + user.telegramid + "</code>\n" +
            "👥 <b>Total Registered Users:</b> <code>" + totalUsers + "</code>\n" +
-           "⭐ <b>VIP Members:</b> <code>" + vipList.length + "</code>\n" +
            "📢 <b>Force Channels:</b> <code>" + channels.length + "</code>\n" +
            "🛡️ <b>System:</b> Operational\n\n" +
            "<i>Select a control module below:</i>";
@@ -42,13 +40,10 @@ var buttons = [
   ],
   [
     { text: "🔐 Force Subscribe", callback_data: "/admin_forcesub" },
-    { text: "⭐ Manage VIP", callback_data: "/admin_vip" }
+    { text: "📁 Export Users", callback_data: "/admin_export_users" }
   ],
   [
-    { text: "📁 Export Users", callback_data: "/admin_export_users" },
-    { text: "🧹 Clean Database", callback_data: "/admin_clean_db" }
-  ],
-  [
+    { text: "🧹 Clean Database", callback_data: "/admin_clean_db" },
     { text: "❌ Close Panel", callback_data: "/admin_close" }
   ]
 ];

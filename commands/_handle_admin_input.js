@@ -167,37 +167,3 @@ if (step === "remove_channel_idx") {
   Bot.runCommand("/admin_forcesub");
   return;
 }
-
-// ------------------ 8. TOGGLE VIP MEMBER (Add / Remove) ------------------ //
-if (step === "toggle_vip") {
-  User.setProperty("admin_step", null);
-  var targetUid = String(text).replace(/[^0-9]/g, "");
-  if (!targetUid) {
-    Bot.sendMessage("❌ <b>Invalid User ID:</b> Please enter numbers only.", { parse_mode: "HTML" });
-    Bot.runCommand("/admin");
-    return;
-  }
-  var isVip = Bot.getProperty("vip_" + targetUid);
-  var vipList = Bot.getProperty("vip_users_list") || [];
-  if (isVip) {
-    Bot.setProperty("vip_" + targetUid, false, "boolean");
-    var vidx = vipList.indexOf(targetUid);
-    if (vidx !== -1) vipList.splice(vidx, 1);
-    Bot.setProperty("vip_users_list", vipList, "json");
-    Bot.sendMessage("❌ <b>VIP Status Revoked:</b> User <code>" + targetUid + "</code> is now a free user.", { parse_mode: "HTML" });
-  } else {
-    Bot.setProperty("vip_" + targetUid, true, "boolean");
-    if (vipList.indexOf(targetUid) === -1) vipList.push(targetUid);
-    Bot.setProperty("vip_users_list", vipList, "json");
-    Bot.sendMessage("👑 <b>VIP Status Granted:</b> User <code>" + targetUid + "</code> is now a VIP Member! ⭐", { parse_mode: "HTML" });
-    try {
-      Api.sendMessage({
-        chat_id: targetUid,
-        text: "👑 <b>Congratulations!</b>\nYou have been granted <b>VIP Member</b> status by the Master Admin! ⭐\n\n• You now have bypass access to all Force Subscribe channels.\n• Enjoy all premium features!",
-        parse_mode: "HTML"
-      });
-    } catch (e) {}
-  }
-  Bot.runCommand("/admin");
-  return;
-}

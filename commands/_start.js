@@ -21,35 +21,6 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;");
 }
 
-function estimateAccountAge(id) {
-  var num = parseInt(id, 10);
-  if (!num || isNaN(num) || num < 0) return "N/A";
-  if (num < 50000000) return "~2013-2014 (OG)";
-  if (num < 150000000) return "~2015";
-  if (num < 300000000) return "~2016";
-  if (num < 500000000) return "~2017";
-  if (num < 750000000) return "~2018";
-  if (num < 1000000000) return "~2019";
-  if (num < 1500000000) return "~2020";
-  if (num < 2200000000) return "~2021";
-  if (num < 5500000000) return "~2022";
-  if (num < 6800000000) return "~2023";
-  if (num < 7800000000) return "~2024";
-  if (num < 8500000000) return "~2025";
-  return "~2026+";
-}
-
-function getDcInfo(dc) {
-  var dcs = {
-    1: "DC 1 (Miami, USA 🇺🇸)",
-    2: "DC 2 (Amsterdam, NL 🇳🇱)",
-    3: "DC 3 (Miami, USA 🇺🇸)",
-    4: "DC 4 (Amsterdam, NL 🇳🇱)",
-    5: "DC 5 (Singapore 🇸🇬 / Asia)"
-  };
-  return dcs[dc] || ("DC " + dc);
-}
-
 function getMainKeyboard() {
   return {
     keyboard: [
@@ -187,11 +158,9 @@ for (var i = 0; i < forceChannels.length; i++) {
 }
 
 var isOwner = (String(userId) === ADMIN_ID);
-var isVip = Bot.getProperty("vip_" + userId);
 var isVerified = User.getProperty("force_sub_verified");
 
-// VIP users and Master Admin bypass Force Subscribe completely
-if (!isOwner && !isVip && activeChannels.length > 0 && !isVerified) {
+if (!isOwner && activeChannels.length > 0 && !isVerified) {
   var buttons = [];
   for (var j = 0; j < activeChannels.length; j++) {
     var ch = activeChannels[j];
@@ -214,33 +183,20 @@ if (!isOwner && !isVip && activeChannels.length > 0 && !isVerified) {
   return;
 }
 
-// 3. Send User ID & Premium Card with 8 Request Buttons
+// 3. Send User ID & Attach 8 Request Buttons
 var u = user || {};
 var c = chat || {};
-var myId = c.chatid || u.telegramid;
 var name = u.first_name || "User";
 if (u.last_name) {
   name = (name + " " + u.last_name).trim();
 }
 
-var reqObj = (typeof request !== "undefined" && request) ? request : {};
-var isPrem = (u.is_premium || (reqObj.from && reqObj.from.is_premium)) ? true : false;
-var userDc = User.getProperty("dc_id");
-var dcText = userDc ? getDcInfo(userDc) : "DC 5 (Singapore / Asia)";
-var statusStr = isOwner ? "Master Admin ⚡" : (isVip ? "VIP Member 💎" : "Free User");
-
-var text = "Your ID: <code>" + myId + "</code>\n" +
+var text = "Your ID: <code>" + (c.chatid || u.telegramid) + "</code>\n" +
            "Your Name: " + escapeHtml(name) + "\n" +
-           "Your Username: @" + (u.username ? escapeHtml(u.username) : "N/A") + "\n\n" +
-           "✨ <b>Premium Details:</b>\n" +
-           "⭐ <b>Telegram Premium:</b> " + (isPrem ? "Yes (Active ⭐)" : "No") + "\n" +
-           "📅 <b>Estimated Age:</b> " + estimateAccountAge(myId) + "\n" +
-           "🌐 <b>Data Center:</b> " + dcText + "\n" +
-           "👑 <b>Bot Status:</b> " + statusStr + "\n" +
-           "🔗 <b>Permalink:</b> <a href=\"tg://user?id=" + myId + "\">Open Profile</a>";
+           "Your Username: @" + (u.username ? escapeHtml(u.username) : "N/A");
 
 Api.sendMessage({
-  chat_id: myId,
+  chat_id: c.chatid || u.telegramid,
   text: text,
   parse_mode: "html",
   reply_markup: getMainKeyboard()
